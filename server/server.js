@@ -13,7 +13,12 @@ dotenv.config();
 connectDB();
 
 const app = express();
-
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Efforvia API Running",
+  });
+});
 // Rate limiter: max 100 requests per 15 minutes
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
