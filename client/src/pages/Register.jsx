@@ -1,0 +1,119 @@
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { GraduationCap } from "lucide-react";
+import api from "../services/api";
+import FlowFieldBackground from "../components/ui/FlowFieldBackground";
+import GlassCard from "../components/ui/GlassCard";
+import PageTransition from "../components/ui/PageTransition";
+
+function Register() {
+  const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+  const [error, setError] = useState("");
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      await api.post("/auth/register", formData);
+
+      navigate("/login");
+    } catch (error) {
+      setError(error.response?.data?.message || "Registration failed");
+    }
+  };
+
+  return (
+    <PageTransition>
+      <div className="relative min-h-screen flex items-center justify-center px-6">
+        <FlowFieldBackground />
+
+        <GlassCard className="relative z-10 w-full max-w-md p-8">
+          <div className="mb-6 flex flex-col items-center justify-center gap-2">
+            <Link to="/" className="flex items-center gap-3">
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl border border-indigo-300/20 bg-indigo-400/15 shadow-[0_8px_0_#1e1b4b]">
+                <GraduationCap size={25} className="text-indigo-200" />
+              </span>
+              <span>
+                <span className="block text-xl font-semibold text-white">
+                  Efforvia
+                </span>
+                <span className="hidden text-xs text-indigo-200 sm:block">
+                  Learn. Level up. Repeat.
+                </span>
+              </span>
+            </Link>
+          </div>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <h1 className="text-4xl font-bold text-white">Create Account</h1>
+
+            <p className="text-slate-400">
+              Save your roadmap and track progress from one dashboard.
+            </p>
+
+            {error && (
+              <p className="rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                {error}
+              </p>
+            )}
+
+            <input
+              type="text"
+              name="name"
+              placeholder="Name"
+              value={formData.name}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-white outline-none transition focus:border-indigo-500"
+              required
+            />
+
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-white outline-none transition focus:border-indigo-500"
+              required
+            />
+
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-white outline-none transition focus:border-indigo-500"
+              required
+            />
+
+            <button className="rounded-xl bg-indigo-600 px-6 py-3 font-semibold text-white shadow-[0_8px_0_#312e81] transition-all hover:-translate-y-1 hover:bg-indigo-500 hover:shadow-[0_12px_0_#312e81] active:translate-y-1 active:shadow-[0_4px_0_#312e81]">
+              Register
+            </button>
+
+            <p className="text-center text-sm text-slate-400">
+              Already have an account?{" "}
+              <Link to="/login" className="text-indigo-300 hover:text-white">
+                Login
+              </Link>
+            </p>
+          </form>
+        </GlassCard>
+      </div>
+    </PageTransition>
+  );
+}
+
+export default Register;
