@@ -19,9 +19,14 @@ function Footer() {
             <Link to="/learning-paths" className="transition hover:text-white">Quests</Link>
           </div>
 
-          <p className="text-xs text-slate-500">
-            &copy; {new Date().getFullYear()} Efforvia. Learn. Level up. Repeat.
-          </p>
+          <div className="flex flex-col items-center gap-1 md:items-end">
+            <p className="text-xs text-slate-500">
+              &copy; {new Date().getFullYear()} Efforvia. Learn. Level up. Repeat.
+            </p>
+            <p className="text-xs text-slate-500">
+              Made by <a href="https://github.com/Sanjith2006k" target="_blank" rel="noopener noreferrer" className="text-indigo-400 hover:text-indigo-300 transition-colors">Sanjith2006k</a>
+            </p>
+          </div>
         </div>
       </div>
     </footer>
