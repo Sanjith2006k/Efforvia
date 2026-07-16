@@ -1,4 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
+import api from "./services/api";
+import ServerWakeup from "./components/ui/ServerWakeup";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -16,6 +19,37 @@ import AdminFeedbacks from "./pages/admin/AdminFeedbacks";
 import AdminLearningPaths from "./pages/admin/AdminLearningPaths";
 
 function App() {
+  const [serverStatus, setServerStatus] = useState(
+    sessionStorage.getItem("serverReady") ? "ready" : "checking"
+  );
+  const [showLoading, setShowLoading] = useState(false);
+
+  useEffect(() => {
+    if (serverStatus === "ready") return;
+
+    const timer = setTimeout(() => setShowLoading(true), 1500);
+
+    const checkServer = async () => {
+      try {
+        await api.get("/");
+        clearTimeout(timer);
+        sessionStorage.setItem("serverReady", "true");
+        setServerStatus("ready");
+      } catch (error) {
+        setTimeout(checkServer, 3000);
+      }
+    };
+
+    checkServer();
+
+    return () => clearTimeout(timer);
+  }, [serverStatus]);
+
+  if (serverStatus === "checking") {
+    if (showLoading) return <ServerWakeup />;
+    return <div className="min-h-screen bg-slate-950"></div>;
+  }
+
   return (
     <BrowserRouter>
       <Routes>
