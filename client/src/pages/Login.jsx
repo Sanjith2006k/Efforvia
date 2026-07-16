@@ -6,6 +6,7 @@ import api from "../services/api";
 import FlowFieldBackground from "../components/ui/FlowFieldBackground";
 import GlassCard from "../components/ui/GlassCard";
 import PageTransition from "../components/ui/PageTransition";
+import ServerWakeup from "../components/ui/ServerWakeup";
 
 function Login() {
   const { user, login } = useContext(AuthContext);
@@ -15,6 +16,7 @@ function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isWakingServer, setIsWakingServer] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -38,11 +40,22 @@ function Login() {
       return;
     }
 
+    let timeoutId;
+    if (!sessionStorage.getItem("serverReady")) {
+      timeoutId = setTimeout(() => {
+        setIsWakingServer(true);
+      }, 1500);
+    }
+
     try {
       const response = await api.post("/auth/login", {
         email: email.trim(),
         password,
       });
+
+      if (timeoutId) clearTimeout(timeoutId);
+      sessionStorage.setItem("serverReady", "true");
+      setIsWakingServer(false);
 
       login(response.data.user, response.data.token);
       if (response.data.user.role === "admin") {
@@ -51,9 +64,20 @@ function Login() {
         navigate("/dashboard");
       }
     } catch (error) {
-      setError(error.response?.data?.message || "Login failed");
+      if (timeoutId) clearTimeout(timeoutId);
+      setIsWakingServer(false);
+      
+      if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+        setError("Server took too long to respond. Please try again.");
+      } else {
+        setError(error.response?.data?.message || "Login failed");
+      }
     }
   };
+
+  if (isWakingServer) {
+    return <ServerWakeup />;
+  }
 
   return (
     <PageTransition>
