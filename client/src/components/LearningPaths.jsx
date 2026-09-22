@@ -22,6 +22,13 @@ function LearningPaths() {
   const [paths, setPaths] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeQuiz, setActiveQuiz] = useState(null);
+  const [activeTabIndex, setActiveTabIndex] = useState(0);
+
+  useEffect(() => {
+    if (paths.length > 0 && activeTabIndex >= paths.length) {
+      setActiveTabIndex(Math.max(0, paths.length - 1));
+    }
+  }, [paths, activeTabIndex]);
 
   const loadPaths = async () => {
     const response = await getLearningPaths();
@@ -136,8 +143,26 @@ function LearningPaths() {
           </div>
         )}
 
+        {paths.length > 0 && (
+          <div className="mb-8 flex overflow-x-auto gap-2 rounded-xl bg-slate-900/50 p-2 backdrop-blur-md border border-slate-800">
+            {paths.map((path, index) => (
+              <button
+                key={path._id}
+                onClick={() => setActiveTabIndex(index)}
+                className={`whitespace-nowrap flex-1 min-w-[120px] rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
+                  activeTabIndex === index
+                    ? "bg-indigo-600 text-white shadow-md"
+                    : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                }`}
+              >
+                {path.topic}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="grid gap-10">
-          {paths.map((path) => (
+          {paths.map((path, index) => index === activeTabIndex && (
             <section
               key={path._id}
               className="rounded-3xl border border-slate-800 bg-slate-900/65 p-6 shadow-[14px_14px_0_#1e1b4b] backdrop-blur-xl"
